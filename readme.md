@@ -32,7 +32,6 @@ Redis AI Query Optimizer is an enterprise-grade platform that revolutionizes dat
 
 *🔥 Watch the magic happen: Real-time query optimization with predictive intelligence*
 
-**[🌐 Try Live Demo](your-live-demo-link)** • **[📹 Full Video Walkthrough](your-video-link)** • **[📊 Interactive Dashboard](your-dashboard-link)**
 
 </div>
 
