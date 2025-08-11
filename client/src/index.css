@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(210, 25%, 7.8%);
+  --foreground: hsl(200, 6.67%, 91.18%);
+  --card: hsl(215, 25%, 15.29%);
+  --card-foreground: hsl(0, 0%, 85.1%);
+  --popover: hsl(210, 25%, 7.8%);
+  --popover-foreground: hsl(200, 6.67%, 91.18%);
+  --primary: hsl(215, 89%, 53.73%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(159.78%, 100%, 36.08%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(210, 25%, 9.41%);
+  --muted-foreground: hsl(210, 3.39%, 46.27%);
+  --accent: hsl(42.03%, 92.83%, 56.27%);
+  --accent-foreground: hsl(210, 25%, 7.8%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(210, 5.26%, 14.9%);
+  --input: hsl(208, 27.66%, 18.43%);
+  --ring: hsl(203, 89%, 53.73%);
+  --chart-1: hsl(215, 89%, 53.73%);
+  --chart-2: hsl(159.78%, 100%, 36.08%);
+  --chart-3: hsl(42.03%, 92.83%, 56.27%);
+  --chart-4: hsl(147.14%, 78.5%, 41.96%);
+  --chart-5: hsl(341.49%, 75.2%, 50.98%);
+  --sidebar: hsl(215, 25%, 15.29%);
+  --sidebar-foreground: hsl(0, 0%, 85.1%);
+  --sidebar-primary: hsl(215, 89%, 53.73%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(205.71%, 70%, 7.84%);
+  --sidebar-accent-foreground: hsl(203.77%, 87.6%, 52.55%);
+  --sidebar-border: hsl(210, 5.26%, 14.9%);
+  --sidebar-ring: hsl(203, 89%, 53.73%);
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  --radius: 0.75rem;
+  --danger: hsl(0, 84%, 60%);
+  --warning: hsl(42.03%, 92.83%, 56.27%);
+  --success: hsl(159.78%, 100%, 36.08%);
+}
+
+.dark {
+  --background: hsl(210, 25%, 7.8%);
+  --foreground: hsl(200, 6.67%, 91.18%);
+  --card: hsl(215, 25%, 15.29%);
+  --card-foreground: hsl(0, 0%, 85.1%);
+  --popover: hsl(210, 25%, 7.8%);
+  --popover-foreground: hsl(200, 6.67%, 91.18%);
+  --primary: hsl(215, 89%, 53.73%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(159.78%, 100%, 36.08%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(210, 25%, 9.41%);
+  --muted-foreground: hsl(210, 3.39%, 46.27%);
+  --accent: hsl(42.03%, 92.83%, 56.27%);
+  --accent-foreground: hsl(210, 25%, 7.8%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(210, 5.26%, 14.9%);
+  --input: hsl(208, 27.66%, 18.43%);
+  --ring: hsl(203, 89%, 53.73%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: var(--font-sans);
+  }
+}
+
+@layer components {
+  .metric-card {
+    @apply bg-card rounded-xl p-6 border border-border;
+  }
+  
+  .status-badge {
+    @apply inline-flex items-center px-2 py-1 text-xs font-medium rounded-md;
+  }
+  
+  .status-fast {
+    @apply bg-green-900/30 text-green-300;
+  }
+  
+  .status-slow {
+    @apply bg-yellow-900/30 text-yellow-300;
+  }
+  
+  .status-critical {
+    @apply bg-red-900/30 text-red-300;
+  }
+  
+  .table-hover-row {
+    @apply hover:bg-slate-800/30 transition-colors;
+  }
+  
+  .ai-suggestion-card {
+    @apply p-4 bg-slate-800/50 rounded-lg border border-slate-600;
+  }
+}
+
+/* Chart.js custom styles for dark theme */
+.chart-container canvas {
+  background: transparent !important;
+}
+
+/* Scrollbar styling for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(210, 25%, 15.29%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(210, 5.26%, 25%);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(210, 5.26%, 35%);
+}
+
+/* Animation for real-time indicators */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
