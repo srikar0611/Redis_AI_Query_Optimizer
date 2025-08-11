@@ -1,0 +1,671 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redis AI Query Optimizer - Enterprise Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                        danger: '#EF4444',
+                        dark: '#0F172A',
+                        card: '#1E293B',
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-dark text-slate-50 font-sans">
+    <!-- @COMPONENT: MainLayout [full application layout with sidebar and main content] -->
+    <div class="flex h-screen bg-dark">
+        <!-- @COMPONENT: Sidebar [navigation and system status] -->
+        <div class="w-64 bg-card border-r border-slate-700 flex flex-col">
+            <!-- Logo and Brand -->
+            <div class="p-6 border-b border-slate-700">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                        <i class="fas fa-bolt text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-white">Redis AI</h1>
+                        <p class="text-xs text-slate-400">Query Optimizer</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="flex-1 p-4">
+                <div class="space-y-2">
+                    <a href="#dashboard" class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-primary/20 text-primary border border-primary/30">
+                        <i class="fas fa-tachometer-alt w-4"></i>
+                        <span class="text-sm font-medium">Dashboard</span>
+                    </a>
+                    <a href="#queries" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 transition-colors">
+                        <i class="fas fa-search w-4"></i>
+                        <span class="text-sm">Query Monitor</span>
+                    </a>
+                    <a href="#optimization" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 transition-colors">
+                        <i class="fas fa-robot w-4"></i>
+                        <span class="text-sm">AI Optimization</span>
+                    </a>
+                    <a href="#analytics" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 transition-colors">
+                        <i class="fas fa-chart-line w-4"></i>
+                        <span class="text-sm">Analytics</span>
+                    </a>
+                    <a href="#alerts" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 transition-colors">
+                        <i class="fas fa-bell w-4"></i>
+                        <span class="text-sm">Alerts</span>
+                        <span class="ml-auto bg-danger text-white text-xs px-2 py-0.5 rounded-full">3</span>
+                    </a>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Demo App</h3>
+                    <div class="space-y-2">
+                        <a href="#ecommerce" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 transition-colors">
+                            <i class="fas fa-shopping-cart w-4"></i>
+                            <span class="text-sm">E-commerce Demo</span>
+                        </a>
+                        <a href="#traffic" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 transition-colors">
+                            <i class="fas fa-traffic-light w-4"></i>
+                            <span class="text-sm">Traffic Generator</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- System Status -->
+            <div class="p-4 border-t border-slate-700">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-slate-400">Redis Status</span>
+                        <div class="flex items-center space-x-1">
+                            <div class="w-2 h-2 bg-secondary rounded-full"></div>
+                            <span class="text-xs text-secondary">Online</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-slate-400">AI Model</span>
+                        <div class="flex items-center space-x-1">
+                            <div class="w-2 h-2 bg-secondary rounded-full"></div>
+                            <span class="text-xs text-secondary">Active</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-slate-400">DB Pool</span>
+                        <span class="text-xs text-slate-300">12/20</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: Sidebar -->
+
+        <!-- @COMPONENT: MainContent [primary dashboard content area] -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- @COMPONENT: TopBar [header with user info and real-time status] -->
+            <header class="bg-card border-b border-slate-700 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">Dashboard Overview</h1>
+                        <p class="text-sm text-slate-400">Real-time database optimization and monitoring</p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <!-- Real-time indicator -->
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
+                            <span class="text-sm text-slate-300">Live</span>
+                        </div>
+                        
+                        <!-- Time range selector -->
+                        <select class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-1 text-sm text-white">
+                            <option>Last 1 hour</option>
+                            <option>Last 6 hours</option>
+                            <option>Last 24 hours</option>
+                            <option>Last 7 days</option>
+                        </select>
+
+                        <!-- User menu -->
+                        <div class="flex items-center space-x-3">
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-white" data-bind="user.name">John Smith</p>
+                                <p class="text-xs text-slate-400" data-bind="user.role">Database Administrator</p>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&h=100" alt="User avatar" class="w-8 h-8 rounded-full" data-mock="true">
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- @END_COMPONENT: TopBar -->
+
+            <!-- @COMPONENT: DashboardContent [main dashboard with metrics and charts] -->
+            <main class="flex-1 overflow-auto p-6">
+                <!-- @COMPONENT: MetricsGrid [key performance indicators] -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Total Queries Metric -->
+                    <div class="bg-card rounded-xl p-6 border border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-400">Total Queries</p>
+                                <p class="text-2xl font-bold text-white" data-bind="metrics.totalQueries">847,392</p>
+                                <div class="flex items-center mt-2">
+                                    <i class="fas fa-arrow-up text-secondary text-xs"></i>
+                                    <span class="text-xs text-secondary ml-1">+12.3%</span>
+                                    <span class="text-xs text-slate-400 ml-1">from last hour</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-database text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Avg Response Time Metric -->
+                    <div class="bg-card rounded-xl p-6 border border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-400">Avg Response Time</p>
+                                <p class="text-2xl font-bold text-white" data-bind="metrics.avgResponseTime">23.4ms</p>
+                                <div class="flex items-center mt-2">
+                                    <i class="fas fa-arrow-down text-secondary text-xs"></i>
+                                    <span class="text-xs text-secondary ml-1">-5.2%</span>
+                                    <span class="text-xs text-slate-400 ml-1">optimized</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 bg-secondary/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-stopwatch text-secondary"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Optimizations Metric -->
+                    <div class="bg-card rounded-xl p-6 border border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-400">AI Optimizations</p>
+                                <p class="text-2xl font-bold text-white" data-bind="metrics.aiOptimizations">1,247</p>
+                                <div class="flex items-center mt-2">
+                                    <i class="fas fa-robot text-accent text-xs"></i>
+                                    <span class="text-xs text-accent ml-1">Active</span>
+                                    <span class="text-xs text-slate-400 ml-1">suggestions</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-brain text-accent"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cost Savings Metric -->
+                    <div class="bg-card rounded-xl p-6 border border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-400">Cost Savings</p>
+                                <p class="text-2xl font-bold text-white" data-bind="metrics.costSavings">$12,847</p>
+                                <div class="flex items-center mt-2">
+                                    <i class="fas fa-dollar-sign text-secondary text-xs"></i>
+                                    <span class="text-xs text-secondary ml-1">40.2%</span>
+                                    <span class="text-xs text-slate-400 ml-1">reduction</span>
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 bg-secondary/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-piggy-bank text-secondary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: MetricsGrid -->
+
+                <!-- @COMPONENT: ChartsSection [performance analytics and visualizations] -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Query Performance Chart -->
+                    <div class="bg-card rounded-xl p-6 border border-slate-700">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-white">Query Performance Trends</h3>
+                            <button class="text-xs text-primary hover:text-blue-400 transition-colors">
+                                <i class="fas fa-external-link-alt mr-1"></i>View Details
+                            </button>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="performanceChart" data-mock="true"></canvas>
+                            <!-- @FUNCTIONALITY: This should display real-time performance metrics using Chart.js -->
+                        </div>
+                    </div>
+
+                    <!-- Database Load Distribution -->
+                    <div class="bg-card rounded-xl p-6 border border-slate-700">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-white">Database Load Distribution</h3>
+                            <button class="text-xs text-primary hover:text-blue-400 transition-colors">
+                                <i class="fas fa-cog mr-1"></i>Configure
+                            </button>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="loadChart" data-mock="true"></canvas>
+                            <!-- @FUNCTIONALITY: This should show database load across different query types -->
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: ChartsSection -->
+
+                <!-- @COMPONENT: DataTablesSection [real-time query monitoring and AI suggestions] -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Recent Queries Table -->
+                    <div class="xl:col-span-2 bg-card rounded-xl border border-slate-700">
+                        <div class="p-6 border-b border-slate-700">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-white">Live Query Monitor</h3>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs text-slate-400">Auto-refresh:</span>
+                                    <div class="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-slate-800/50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Query</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Time</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Table</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">AI</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-700" data-mock="true">
+                                    <!-- @MAP: recentQueries.map(query => ( -->
+                                    <tr class="hover:bg-slate-800/30 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-white font-mono truncate max-w-xs" title="SELECT p.name, p.price FROM products p WHERE p.category_id = 5 ORDER BY p.created_at DESC LIMIT 20">
+                                                SELECT p.name, p.price FROM products...
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-slate-300">45.2ms</div>
+                                            <div class="text-xs text-slate-400">2 sec ago</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex px-2 py-1 text-xs font-medium bg-blue-900/30 text-blue-300 rounded-md">
+                                                products
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-yellow-900/30 text-yellow-300 rounded-md">
+                                                <i class="fas fa-clock mr-1"></i>
+                                                Slow
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <button class="inline-flex items-center px-2 py-1 text-xs font-medium bg-primary/20 text-primary rounded-md hover:bg-primary/30 transition-colors">
+                                                <i class="fas fa-magic mr-1"></i>
+                                                Optimize
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="hover:bg-slate-800/30 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-white font-mono truncate max-w-xs" title="UPDATE users SET last_login = NOW() WHERE id = 1247">
+                                                UPDATE users SET last_login = NOW()...
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-slate-300">12.8ms</div>
+                                            <div class="text-xs text-slate-400">5 sec ago</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex px-2 py-1 text-xs font-medium bg-green-900/30 text-green-300 rounded-md">
+                                                users
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-900/30 text-green-300 rounded-md">
+                                                <i class="fas fa-check mr-1"></i>
+                                                Fast
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-slate-700 text-slate-400 rounded-md">
+                                                <i class="fas fa-check mr-1"></i>
+                                                Optimal
+                                            </span>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="hover:bg-slate-800/30 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-white font-mono truncate max-w-xs" title="SELECT COUNT(*) FROM orders o JOIN order_items oi ON o.id = oi.order_id WHERE o.status = 'pending'">
+                                                SELECT COUNT(*) FROM orders o JOIN...
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-slate-300">234.7ms</div>
+                                            <div class="text-xs text-slate-400">8 sec ago</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex px-2 py-1 text-xs font-medium bg-purple-900/30 text-purple-300 rounded-md">
+                                                orders
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-red-900/30 text-red-300 rounded-md">
+                                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                Critical
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <button class="inline-flex items-center px-2 py-1 text-xs font-medium bg-accent/20 text-accent rounded-md hover:bg-accent/30 transition-colors animate-pulse">
+                                                <i class="fas fa-robot mr-1"></i>
+                                                AI Active
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- @END_MAP )) -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- AI Optimization Panel -->
+                    <div class="space-y-6">
+                        <!-- Current AI Recommendation -->
+                        <div class="bg-card rounded-xl p-6 border border-slate-700">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="w-8 h-8 bg-accent/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-robot text-accent text-sm"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-white">AI Suggestion</h3>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="p-4 bg-slate-800/50 rounded-lg border border-slate-600">
+                                    <div class="flex items-start justify-between mb-2">
+                                        <span class="text-sm font-medium text-accent">Index Recommendation</span>
+                                        <span class="text-xs text-slate-400">Confidence: 94%</span>
+                                    </div>
+                                    <p class="text-sm text-slate-300 mb-3">
+                                        Add composite index on <code class="bg-slate-700 px-1 rounded text-primary">orders(status, created_at)</code> to improve query performance by ~87%.
+                                    </p>
+                                    <div class="flex space-x-2">
+                                        <button class="px-3 py-1 bg-primary hover:bg-blue-600 text-white text-xs rounded-md transition-colors">
+                                            Apply
+                                        </button>
+                                        <button class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs rounded-md transition-colors">
+                                            Review SQL
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="p-4 bg-slate-800/50 rounded-lg border border-slate-600">
+                                    <div class="flex items-start justify-between mb-2">
+                                        <span class="text-sm font-medium text-secondary">Query Rewrite</span>
+                                        <span class="text-xs text-slate-400">Confidence: 89%</span>
+                                    </div>
+                                    <p class="text-sm text-slate-300 mb-3">
+                                        Replace <code class="bg-slate-700 px-1 rounded text-red-400">UPPER(name) LIKE</code> with full-text search for 3x performance improvement.
+                                    </p>
+                                    <div class="flex space-x-2">
+                                        <button class="px-3 py-1 bg-secondary hover:bg-green-600 text-white text-xs rounded-md transition-colors">
+                                            Apply
+                                        </button>
+                                        <button class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs rounded-md transition-colors">
+                                            Compare
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance Alerts -->
+                        <div class="bg-card rounded-xl p-6 border border-slate-700">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-white">Active Alerts</h3>
+                                <span class="bg-danger text-white text-xs px-2 py-1 rounded-full">3</span>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-start space-x-3 p-3 bg-red-900/20 border border-red-700/50 rounded-lg">
+                                    <i class="fas fa-exclamation-triangle text-danger mt-0.5"></i>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-white">Critical Query Detected</p>
+                                        <p class="text-xs text-slate-400 mt-1">Table scan on 2.3M rows</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3 p-3 bg-yellow-900/20 border border-yellow-700/50 rounded-lg">
+                                    <i class="fas fa-clock text-accent mt-0.5"></i>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-white">High Latency Warning</p>
+                                        <p class="text-xs text-slate-400 mt-1">Average response: 245ms</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3 p-3 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+                                    <i class="fas fa-info-circle text-primary mt-0.5"></i>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-white">Optimization Available</p>
+                                        <p class="text-xs text-slate-400 mt-1">12 queries can be optimized</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="w-full mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded-lg transition-colors">
+                                View All Alerts
+                            </button>
+                        </div>
+
+                        <!-- Demo App Status -->
+                        <div class="bg-card rounded-xl p-6 border border-slate-700">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-shopping-cart text-blue-400 text-sm"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-white">Demo E-commerce</h3>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-slate-400">Traffic Generation</span>
+                                    <div class="flex items-center space-x-1">
+                                        <div class="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
+                                        <span class="text-xs text-secondary">Active</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-slate-400">Queries/min</span>
+                                    <span class="text-sm text-white" data-bind="demo.queriesPerMin">342</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-slate-400">Active Users</span>
+                                    <span class="text-sm text-white" data-bind="demo.activeUsers">1,247</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-slate-400">Database Load</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-20 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                            <div class="w-3/5 h-full bg-accent"></div>
+                                        </div>
+                                        <span class="text-xs text-slate-300">60%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex space-x-2 mt-4">
+                                <button class="flex-1 px-3 py-2 bg-primary hover:bg-blue-600 text-white text-xs rounded-lg transition-colors">
+                                    <i class="fas fa-play mr-1"></i>
+                                    Increase Load
+                                </button>
+                                <button class="flex-1 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs rounded-lg transition-colors">
+                                    <i class="fas fa-external-link-alt mr-1"></i>
+                                    View App
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: DataTablesSection -->
+            </main>
+            <!-- @END_COMPONENT: DashboardContent -->
+        </div>
+        <!-- @END_COMPONENT: MainContent -->
+    </div>
+    <!-- @END_COMPONENT: MainLayout -->
+
+    <!-- @COMPONENT: NotificationToast [floating notifications for real-time updates] -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2">
+        <!-- Example notification - should be dynamically generated -->
+        <div class="bg-secondary text-white px-4 py-3 rounded-lg shadow-lg border border-green-600/50 transform transition-all duration-300 translate-x-0 opacity-100">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <p class="text-sm font-medium">Optimization Applied</p>
+                    <p class="text-xs opacity-90">Index added to orders table - 87% improvement</p>
+                </div>
+                <button class="ml-2 text-green-200 hover:text-white">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: NotificationToast -->
+
+    <script>
+        (function() {
+            // TODO: Implement real-time WebSocket connections for live updates
+            // TODO: Implement business logic for AI optimization suggestions
+            // TODO: Implement API calls for query data and metrics
+
+            // Mock chart initialization for demonstration
+            document.addEventListener('DOMContentLoaded', function() {
+                // Performance Chart
+                const performanceCtx = document.getElementById('performanceChart');
+                if (performanceCtx) {
+                    new Chart(performanceCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['00:00', '00:15', '00:30', '00:45', '01:00'],
+                            datasets: [{
+                                label: 'Response Time (ms)',
+                                data: [45, 52, 38, 41, 35],
+                                borderColor: '#3B82F6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4
+                            }, {
+                                label: 'Optimized Queries',
+                                data: [12, 18, 25, 31, 28],
+                                borderColor: '#10B981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: '#CBD5E1'
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: {
+                                        color: '#94A3B8'
+                                    },
+                                    grid: {
+                                        color: 'rgba(148, 163, 184, 0.1)'
+                                    }
+                                },
+                                y: {
+                                    ticks: {
+                                        color: '#94A3B8'
+                                    },
+                                    grid: {
+                                        color: 'rgba(148, 163, 184, 0.1)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Load Distribution Chart
+                const loadCtx = document.getElementById('loadChart');
+                if (loadCtx) {
+                    new Chart(loadCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'DDL'],
+                            datasets: [{
+                                data: [45, 25, 20, 8, 2],
+                                backgroundColor: [
+                                    '#3B82F6',
+                                    '#10B981', 
+                                    '#F59E0B',
+                                    '#EF4444',
+                                    '#8B5CF6'
+                                ],
+                                borderColor: '#1E293B',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: '#CBD5E1',
+                                        padding: 20
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Mock real-time updates simulation
+            function simulateRealTimeUpdates() {
+                // Simulate metrics updates
+                setInterval(() => {
+                    const totalQueries = document.querySelector('[data-bind="metrics.totalQueries"]');
+                    if (totalQueries) {
+                        const current = parseInt(totalQueries.textContent.replace(/,/g, ''));
+                        const updated = (current + Math.floor(Math.random() * 50)).toLocaleString();
+                        totalQueries.textContent = updated;
+                    }
+                }, 3000);
+
+                // Simulate response time updates
+                setInterval(() => {
+                    const avgResponseTime = document.querySelector('[data-bind="metrics.avgResponseTime"]');
+                    if (avgResponseTime) {
+                        const newTime = (20 + Math.random() * 30).toFixed(1);
+                        avgResponseTime.textContent = newTime + 'ms';
+                    }
+                }, 5000);
+            }
+
+            // Initialize mock updates
+            simulateRealTimeUpdates();
+        })();
+    </script>
+</body>
+</html>
