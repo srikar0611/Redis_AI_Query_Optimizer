@@ -1,104 +1,122 @@
-import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Link, useLocation } from "wouter";
+import { 
+  LayoutDashboard, 
+  TrendingUp, 
+  Database, 
+  Settings, 
+  Activity,
+  ChevronRight,
+  AlertCircle,
+  ShoppingCart,
+  Play
+} from "lucide-react";
 
-export default function Sidebar() {
-  const [activeSection, setActiveSection] = useState("dashboard");
+interface SidebarProps {
+  className?: string;
+}
 
-  const navigationItems = [
-    { id: "dashboard", icon: "fas fa-tachometer-alt", label: "Dashboard", active: true },
-    { id: "queries", icon: "fas fa-search", label: "Query Monitor" },
-    { id: "optimization", icon: "fas fa-robot", label: "AI Optimization" },
-    { id: "analytics", icon: "fas fa-chart-line", label: "Analytics" },
-    { id: "alerts", icon: "fas fa-bell", label: "Alerts", badge: "3" },
-  ];
+const navigation = [
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Query Performance Trends', href: '/query-trends', icon: TrendingUp },
+  { name: 'Database Status', href: '/database-status', icon: Database },
+  { name: 'Settings', href: '/settings', icon: Settings },
+];
 
-  const demoItems = [
-    { id: "ecommerce", icon: "fas fa-shopping-cart", label: "E-commerce Demo" },
-    { id: "traffic", icon: "fas fa-traffic-light", label: "Traffic Generator" },
-  ];
+const demoItems = [
+  { name: 'E-commerce Demo', href: '/ecommerce-demo', icon: ShoppingCart },
+  { name: 'Traffic Generator', href: '/traffic-generator', icon: Play },
+];
+
+export function Sidebar({ className }: SidebarProps) {
+  const [location] = useLocation();
 
   return (
-    <div className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
-      {/* Logo and Brand */}
-      <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center space-x-3" data-testid="sidebar-brand">
-          <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex items-center justify-center">
-            <i className="fas fa-bolt text-sidebar-primary-foreground text-sm"></i>
+    <div className={cn("flex h-screen w-64 flex-col bg-card border-r", className)} data-testid="sidebar">
+      {/* Logo and Header */}
+      <div className="flex h-16 items-center border-b px-6">
+        <div className="flex items-center space-x-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+            <Database className="h-4 w-4 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-sidebar-foreground">Redis AI</h1>
+            <h1 className="text-lg font-semibold">Redis AI</h1>
             <p className="text-xs text-muted-foreground">Query Optimizer</p>
           </div>
         </div>
       </div>
 
-      {/* Navigation Menu */}
-      <nav className="flex-1 p-4">
-        <div className="space-y-2">
-          {navigationItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveSection(item.id)}
-              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeSection === item.id
-                  ? 'bg-sidebar-primary/20 text-sidebar-primary border border-sidebar-primary/30'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent transition-colors'
-              }`}
-              data-testid={`nav-${item.id}`}
-            >
-              <i className={`${item.icon} w-4`}></i>
-              <span>{item.label}</span>
-              {item.badge && (
-                <span className="ml-auto bg-destructive text-destructive-foreground text-xs px-2 py-0.5 rounded-full">
-                  {item.badge}
-                </span>
-              )}
-            </button>
-          ))}
+      {/* Navigation */}
+      <nav className="flex-1 space-y-1 p-4" data-testid="sidebar-nav">
+        <div className="space-y-1">
+          {navigation.map((item) => {
+            const isActive = location === item.href || (item.href === '/' && location === '/dashboard');
+            return (
+              <Link key={item.name} href={item.href}>
+                <Button
+                  variant={isActive ? "default" : "ghost"}
+                  className={cn(
+                    "w-full justify-start",
+                    isActive && "bg-primary text-primary-foreground"
+                  )}
+                  data-testid={`nav-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  <item.icon className="mr-3 h-4 w-4" />
+                  {item.name}
+                  {isActive && <ChevronRight className="ml-auto h-4 w-4" />}
+                </Button>
+              </Link>
+            );
+          })}
         </div>
 
+        {/* Demo Section */}
         <div className="mt-8">
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            Demo App
+            Demo Applications
           </h3>
-          <div className="space-y-2">
-            {demoItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveSection(item.id)}
-                className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors text-sm"
-                data-testid={`demo-${item.id}`}
-              >
-                <i className={`${item.icon} w-4`}></i>
-                <span>{item.label}</span>
-              </button>
-            ))}
+          <div className="space-y-1">
+            {demoItems.map((item) => {
+              const isActive = location === item.href;
+              return (
+                <Link key={item.name} href={item.href}>
+                  <Button
+                    variant={isActive ? "default" : "ghost"}
+                    className={cn(
+                      "w-full justify-start",
+                      isActive && "bg-primary text-primary-foreground"
+                    )}
+                    data-testid={`demo-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    <item.icon className="mr-3 h-4 w-4" />
+                    {item.name}
+                    {isActive && <ChevronRight className="ml-auto h-4 w-4" />}
+                  </Button>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </nav>
 
-      {/* System Status */}
-      <div className="p-4 border-t border-sidebar-border">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between" data-testid="redis-status">
-            <span className="text-sm text-muted-foreground">Redis Status</span>
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-secondary rounded-full"></div>
-              <span className="text-xs text-secondary">Online</span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between" data-testid="ai-model-status">
-            <span className="text-sm text-muted-foreground">AI Model</span>
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-secondary rounded-full"></div>
-              <span className="text-xs text-secondary">Active</span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between" data-testid="db-pool-status">
-            <span className="text-sm text-muted-foreground">DB Pool</span>
-            <span className="text-xs text-muted-foreground">12/20</span>
-          </div>
+      {/* Status Footer */}
+      <div className="border-t p-4" data-testid="sidebar-status">
+        <div className="flex items-center space-x-2 text-sm">
+          <div className="flex h-2 w-2 rounded-full bg-green-500" data-testid="system-status-indicator"></div>
+          <span className="text-muted-foreground">System Healthy</span>
+        </div>
+        <div className="mt-2 flex items-center space-x-2">
+          <AlertCircle className="h-4 w-4 text-orange-500" />
+          <span className="text-sm text-muted-foreground" data-testid="active-alerts-count">0 Active Alerts</span>
+          <Badge variant="secondary" className="ml-auto">
+            All Clear
+          </Badge>
         </div>
       </div>
     </div>
   );
 }
+
+export default Sidebar;

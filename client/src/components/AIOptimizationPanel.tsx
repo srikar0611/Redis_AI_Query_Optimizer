@@ -172,6 +172,13 @@ export default function AIOptimizationPanel() {
                     size="sm" 
                     variant="outline"
                     className="px-3 py-1 bg-muted hover:bg-muted/80 text-muted-foreground text-xs rounded-md transition-colors"
+                    onClick={() => {
+                      // Show SQL diff modal or navigate to detailed view
+                      toast({
+                        title: "SQL Review",
+                        description: `Original: ${optimization.originalQuery?.substring(0, 50)}...\nOptimized: ${optimization.optimizedQuery?.substring(0, 50)}...`,
+                      });
+                    }}
                     data-testid={`review-btn-${optimization.id || index}`}
                   >
                     Review SQL
